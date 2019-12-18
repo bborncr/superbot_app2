@@ -42,7 +42,8 @@ class Bluetooth with ChangeNotifier {
         flutterBlue.scan(
           timeout: const Duration(seconds: 5), // need longer to connect? 5?
           // UART service on the device...
-          withServices: [new Guid('6E400001-B5A3-F393-­E0A9-­E50E24DCCA9E')],
+          // withServices: [Guid('6E400001-B5A3-F393-­E0A9-­E50E24DCCA9E')],
+          withServices: [],
         ).listen((ScanResult scanResult) {
           devices[scanResult.device.id] = scanResult;
         }, onDone: () => done.complete(devices));

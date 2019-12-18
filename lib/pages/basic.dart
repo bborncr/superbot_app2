@@ -16,7 +16,7 @@ class BasicPage extends StatelessWidget {
             onPressed: () async {
               await Provider.of<Bluetooth>(context).disconnect();
               print('Disconnected');
-              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, '/scan');
             },
             padding: EdgeInsets.all(15.0),
             child: Text('Disconnect',

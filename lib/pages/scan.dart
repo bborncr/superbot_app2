@@ -6,6 +6,7 @@ import 'package:flutter_blue/flutter_blue.dart' as blue;
 class ScanPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    print('scanning');
     return StreamBuilder(
         stream: Provider.of<Bluetooth>(context).scanForDevices(),
         builder: (context, snapshot) {
@@ -50,7 +51,6 @@ class AvailableDevices extends StatelessWidget {
           },
         ),
         appBar: AppBar(
-//        leading: Icon(Icons.menu),
           title: Text("Select Device"),
           actions: <Widget>[
             IconButton(
@@ -82,9 +82,10 @@ class BluetoothListView extends StatelessWidget {
         children: availableBLEDevices.values
             .where((result) => result.device.name.length > 0)
             .map<Widget>((result) => ListTile(
+                  enabled: true,
                   trailing: (result.device.name == 'Nordic_TUDAO')
                       ? Chip(
-                          label: Text('Superbot Detected',
+                          label: Text('Superbot',
                               style: TextStyle(color: Colors.white)),
                           backgroundColor: Colors.redAccent,
                         )
@@ -97,6 +98,10 @@ class BluetoothListView extends StatelessWidget {
                   onTap: () {
                     connectToDevice(context, result.device);
                   },
+                  onLongPress: () async {
+                    await Provider.of<Bluetooth>(context).disconnect();
+                    print('disconnected');
+                  },
                 ))
             .toList());
   }
@@ -106,6 +111,6 @@ void connectToDevice(BuildContext context, device) async {
   await Provider.of<Bluetooth>(context).connectToDevice(device);
   print(Provider.of<Bluetooth>(context).currentState);
   if (Provider.of<Bluetooth>(context).currentState == BleAppState.connected) {
-    Navigator.pushNamed(context, '/control');
+    Navigator.pushReplacementNamed(context, '/control');
   }
 }
