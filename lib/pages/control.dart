@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:superbot_app2/pages/basic.dart';
 import 'package:superbot_app2/pages/joystick.dart';
 import 'package:provider/provider.dart';
-import 'package:superbot_app2/bluetooth_state.dart';
+import 'package:superbot_app2/bluetooth_service.dart';
 
 class ControlPage extends StatelessWidget {
   @override

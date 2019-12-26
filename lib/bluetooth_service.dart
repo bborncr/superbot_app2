@@ -24,13 +24,14 @@ class Bluetooth with ChangeNotifier {
       await device.connect(timeout: const Duration(seconds: 5));
       await _findCharacteristic(device);
       setMode(BleAppState.connected);
+      // print('Characteristic: $_characteristic');
     } on TimeoutException {
       setMode(BleAppState.failedToConnect);
     }
   }
 
-  Future disconnect() {
-    return _currentDevice.disconnect();
+  Future disconnect() async {
+    return await _currentDevice.disconnect();
   }
 
   Stream<Map<DeviceIdentifier, ScanResult>> scanForDevices() async* {
@@ -54,9 +55,9 @@ class Bluetooth with ChangeNotifier {
     yield await done.future;
   }
 
-  sendMessage(int instruction) async {
+  sendMessage(List<int> instructions) async {
     try {
-      _characteristic?.write([instruction]);
+      await _characteristic?.write(instructions);
     } on TimeoutException {
       // fail silently if we don't connect :-P
     }
