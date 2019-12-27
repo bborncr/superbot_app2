@@ -4,7 +4,6 @@ import 'package:superbot_app2/bluetooth_service.dart';
 import 'package:superbot_app2/pages/scan.dart';
 import 'package:superbot_app2/pages/control.dart';
 import 'package:superbot_app2/pages/splash.dart';
-import 'package:superbot_app2/superbot_service.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,9 +15,6 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (context) => Bluetooth(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => Superbot(),
         ),
       ],
       child: MaterialApp(
