@@ -2,17 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:superbot_app2/bluetooth_service.dart';
-import 'dart:async';
 
 class BasicPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final blue = Provider.of<Bluetooth>(context);
-    if (blue.currentState == BleAppState.connected) {
-      Timer.periodic(Duration(seconds: 5), (timer) {
-        blue.sendMessage();
-      });
-    }
 
     return Container(
       child: Center(
@@ -27,6 +21,14 @@ class BasicPage extends StatelessWidget {
           Card(
             child: Column(
               children: <Widget>[
+                Text(
+                  'Sensor 1: ${blue.readProperties['sensor'][0].toString()}',
+                  style: TextStyle(fontSize: 18.0),
+                ),
+                Text(
+                  'Sensor 2: ${blue.readProperties['sensor'][1].toString()}',
+                  style: TextStyle(fontSize: 18.0),
+                ),
                 MotorSlider(motorIndex: 0),
                 MotorSlider(motorIndex: 1),
                 MotorSlider(motorIndex: 2),

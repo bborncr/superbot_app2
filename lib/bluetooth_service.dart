@@ -15,16 +15,34 @@ class Bluetooth with ChangeNotifier {
   final FlutterBlue flutterBlue = FlutterBlue.instance;
   final devices = Map<DeviceIdentifier, ScanResult>();
   final uartWriteCharacteristic = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
-  BluetoothCharacteristic _characteristic;
+  final uartReadCharacteristic = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+  BluetoothCharacteristic _txCharacteristic;
+  BluetoothCharacteristic _rxCharacteristic;
   BluetoothDevice _currentDevice;
+  var previousValue = [];
 
   Future<void> connectToDevice(BluetoothDevice device) async {
     try {
       _currentDevice = device;
       await device.connect(timeout: const Duration(seconds: 5));
       await _findCharacteristic(device);
+      print('RX Characteristic: ${_rxCharacteristic.uuid}');
+      print('TX Characteristic: ${_txCharacteristic.uuid}');
+      // set notify RX
+      await _rxCharacteristic.setNotifyValue(true);
+      _rxCharacteristic.value.listen((value) {
+        try {
+          if(value != previousValue){
+          readProperties['sensor'][0] = value[7];
+          readProperties['sensor'][1] = value[8];
+          notifyListeners();
+          }
+        } catch (e) {
+          print(e);
+        }
+        previousValue = value;
+      });
       setMode(BleAppState.connected);
-      // print('Characteristic: $_characteristic');
     } on TimeoutException {
       setMode(BleAppState.failedToConnect);
     }
@@ -55,6 +73,11 @@ class Bluetooth with ChangeNotifier {
     yield await done.future;
   }
 
+  // readMessage() async {
+  //   var value = await _rxCharacteristic.read();
+  //   print(value);
+  // }
+
   sendMessage() async {
     for (int i = 0; i < 3; i++) {
       int spd = controlProperties['MotorSpd'][i].toInt();
@@ -78,10 +101,10 @@ class Bluetooth with ChangeNotifier {
     packet.addAll(footer);
     print(packet);
     try {
-      if (_characteristic == null) {
+      if (_txCharacteristic == null) {
         return null;
       }
-      await _characteristic?.write(packet);
+      await _txCharacteristic?.write(packet);
     } on TimeoutException {
       // fail silently if we don't connect :-P
     } catch (e) {
@@ -95,11 +118,16 @@ class Bluetooth with ChangeNotifier {
 
     // worst API ever.
     for (BluetoothService service in services) {
-      _characteristic = service.characteristics.firstWhere(
+      _rxCharacteristic = service.characteristics.firstWhere(
+          (BluetoothCharacteristic c) =>
+              c.uuid.toString() == uartReadCharacteristic,
+          orElse: () => null);
+
+      _txCharacteristic = service.characteristics.firstWhere(
           (BluetoothCharacteristic c) =>
               c.uuid.toString() == uartWriteCharacteristic,
           orElse: () => null);
-      if (_characteristic != null) break;
+      if (_txCharacteristic != null) break;
     }
   }
 
@@ -117,6 +145,10 @@ class Bluetooth with ChangeNotifier {
     'MotorDir': [0.0, 0.0, 0.0],
     'LEDColor': [0.0, 0.0, 0.0, 0.0],
     'MotorValue': [0, 0, 0],
+  };
+
+  var readProperties = {
+    'sensor': [0, 0],
   };
 
   void update(String key, int index, double value) {
