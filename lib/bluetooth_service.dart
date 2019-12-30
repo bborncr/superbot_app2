@@ -108,7 +108,7 @@ class Bluetooth with ChangeNotifier {
     } on TimeoutException {
       // fail silently if we don't connect :-P
     } catch (e) {
-      print(e);
+      print('TX error: $e');
     }
   }
 
@@ -116,7 +116,7 @@ class Bluetooth with ChangeNotifier {
   _findCharacteristic(BluetoothDevice device) async {
     List<BluetoothService> services = await device.discoverServices();
 
-    // worst API ever.
+    // worst API ever. (note from Google employee)
     for (BluetoothService service in services) {
       _rxCharacteristic = service.characteristics.firstWhere(
           (BluetoothCharacteristic c) =>

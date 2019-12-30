@@ -9,13 +9,13 @@ class JoystickPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final blue = Provider.of<Bluetooth>(context);
+    final blue = Provider.of<Bluetooth>(context);
     double x;
     double y;
     return Container(
       child: Center(
         child: JoystickView(
-          interval: Duration(milliseconds: 100),
+          interval: Duration(milliseconds: 1000),
           onDirectionChanged: (double direction, double value) {
             if (value > 0.05) {
               x = sin(direction * kDegreesToRadians) * value * 12;
@@ -26,7 +26,7 @@ class JoystickPage extends StatelessWidget {
             }
             print('x: $x, y: $y');
             // print('Direction: $direction, Value: $value');
-            // blue.update('MotorSpd', 0, y.abs());
+            blue.update('MotorSpd', 0, y.abs());
             // blue.update('MotorDir', 0, x > 0.0 ? 1.0 : 0.0);
             // blue.update('MotorSpd', 1, x.abs());
             // blue.update('MotorDir', 1, x > 0.0 ? 0.0 : 1.0);

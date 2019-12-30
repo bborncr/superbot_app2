@@ -86,12 +86,10 @@ packages:
   flutter_blue:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "2d8fbd825e4c1440fa8676d61fa2c189f9d13eaf"
-      url: "https://github.com/efortuna/flutter_blue"
-    source: git
-    version: "0.6.0+4"
+      name: flutter_blue
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.3+1"
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -152,7 +150,7 @@ packages:
       name: protobuf
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.16+1"
+    version: "1.0.1"
   provider:
     dependency: "direct main"
     description:
