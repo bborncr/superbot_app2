@@ -19,29 +19,44 @@ class Bluetooth with ChangeNotifier {
   BluetoothCharacteristic _txCharacteristic;
   BluetoothCharacteristic _rxCharacteristic;
   BluetoothDevice _currentDevice;
-  var previousValue = [];
+  var previousValue = [0,0,0,0,0,0,0,0,0,0,0];
 
   Future<void> connectToDevice(BluetoothDevice device) async {
     try {
       _currentDevice = device;
-      await device.connect(timeout: const Duration(seconds: 5));
-      await _findCharacteristic(device);
+      await _currentDevice.connect().timeout(Duration(seconds: 5), onTimeout: (){
+        _currentDevice.disconnect();
+      });
+      await _findCharacteristic(_currentDevice);
       print('RX Characteristic: ${_rxCharacteristic.uuid}');
       print('TX Characteristic: ${_txCharacteristic.uuid}');
+      // changing the mtu currently hangs everything -- apparently the nRF51 doesn't support Extended MTUs
+      // try {
+      //   print('changing mtu size');
+      //   await _currentDevice.requestMtu(512).timeout(Duration(seconds: 5), onTimeout: (){
+      //     _currentDevice.disconnect();
+      //   });
+      // } catch (e) {
+      //   print('mtu error: $e');
+      // }
+      _currentDevice.mtu.listen((data) {
+        print('mtu: $data');
+      });
       // set notify RX
       await _rxCharacteristic.setNotifyValue(true);
       _rxCharacteristic.value.listen((value) {
         try {
-          if(value != previousValue){
-          readProperties['sensor'][0] = value[7];
-          readProperties['sensor'][1] = value[8];
-          notifyListeners();
+          if (value != previousValue) {
+            readProperties['sensor'][0] = value[7];
+            readProperties['sensor'][1] = value[8];
+            notifyListeners();
           }
         } catch (e) {
           print(e);
         }
         previousValue = value;
       });
+      print('setting BleAppState to Connected');
       setMode(BleAppState.connected);
     } on TimeoutException {
       setMode(BleAppState.failedToConnect);
@@ -106,7 +121,7 @@ class Bluetooth with ChangeNotifier {
       }
       await _txCharacteristic?.write(packet);
     } on TimeoutException {
-      // fail silently if we don't connect :-P
+      print('send message timeout');
     } catch (e) {
       print('TX error: $e');
     }
